@@ -1,0 +1,55 @@
+import { TokenDefinition } from './parser';
+
+export const TokenType = {
+  NUMBER: 'NUMBER',
+  PLUS: 'PLUS',
+  MINUS: 'MINUS',
+  MUL: 'MUL',
+  DIV: 'DIV',
+  REAL_CONST: 'REAL_CONST',
+  INTEGER_CONST: 'INTEGER_CONST',
+  VARIABLE_IDENTIFIER: 'VARIABLE_IDENTIFIER',
+  LPAR: 'LPAR',
+  RPAR: 'RPAR',
+};
+
+export type TokenTypes = keyof typeof TokenType;
+
+export const tokenDefinitions: TokenDefinition[] = [
+  {
+    type: TokenType.REAL_CONST,
+    matcher: /(\d+\.\d+)/,
+  },
+  {
+    type: TokenType.INTEGER_CONST,
+    matcher: /(\d+)/,
+  },
+  {
+    type: TokenType.VARIABLE_IDENTIFIER,
+    matcher: /\$[a-zA-Z_][a-zA-Z0-9_]*/,
+  },
+  {
+    type: TokenType.MINUS,
+    matcher: '-',
+  },
+  {
+    type: TokenType.PLUS,
+    matcher: '+',
+  },
+  {
+    type: TokenType.LPAR,
+    matcher: '(',
+  },
+  {
+    type: TokenType.RPAR,
+    matcher: ')',
+  },
+  {
+    type: TokenType.MUL,
+    matcher: '*',
+  },
+  {
+    type: TokenType.DIV,
+    matcher: '/',
+  },
+];
