@@ -13,3 +13,32 @@ Calculator interpreter written in TypeScript.
 ![Coverage Functions](./badges/badge-lines.svg)
 
 ## Description
+
+To learn more about the grammar, see the [grammar page](./GRAMMAR.md).
+
+## Example usage
+
+```ts
+// Import the module
+import { MyParser, SyntaxAnalyzer, Interpreter } from './calculator';
+
+// Create a new parser and build the syntax tree
+const parser = new MyParser('$a * 2 + $b * 2');
+const exprNode = parser.parse();
+
+// Analyze the syntax tree
+const analyzer = new SyntaxAnalyzer(exprNode);
+analyzer.analyze();
+
+// Create global activation record
+const globalActivationRecord = {
+  $a: 1,
+  $b: 2,
+};
+
+// Create an interpreter with the syntax tree and the global activation record
+const interpreter = new Interpreter(exprNode, globalActivationRecord);
+
+// Evaluate the syntax tree
+console.log(interpreter.interpret()); // 6
+```

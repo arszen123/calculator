@@ -6,6 +6,7 @@ export const TokenType = {
   MINUS: 'MINUS',
   MUL: 'MUL',
   DIV: 'DIV',
+  POWER: 'POWER',
   REAL_CONST: 'REAL_CONST',
   INTEGER_CONST: 'INTEGER_CONST',
   VARIABLE_IDENTIFIER: 'VARIABLE_IDENTIFIER',
@@ -51,5 +52,9 @@ export const tokenDefinitions: TokenDefinition[] = [
   {
     type: TokenType.DIV,
     matcher: '/',
+  },
+  {
+    type: TokenType.POWER,
+    matcher: '^',
   },
 ];

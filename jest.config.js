@@ -7,4 +7,6 @@ module.exports = {
     'text',
     'lcov',
   ],
+  coverageDirectory: '<rootDir>/../coverage',
+  rootDir: 'src',
 };

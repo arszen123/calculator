@@ -21,21 +21,31 @@ export class MyParser extends Parser {
   protected expression(): ASTNode {
     let node = this.term();
 
-    if (this.isCurrentTokenType(TokenType.PLUS) || this.isCurrentTokenType(TokenType.MINUS)) {
-      node = new BinOpNode(node, this.eat(), this.expression());
+    while (this.isCurrentTokenType(TokenType.PLUS) || this.isCurrentTokenType(TokenType.MINUS)) {
+      node = new BinOpNode(node, this.eat(), this.term());
     }
 
     return node;
   }
 
   /**
-   * grammar: **factor** ((MUL|DIV) **factor**)
+   * grammar: **powTerm** ((MUL|DIV) **powTerm**)
    */
   protected term(): ASTNode {
+    let node = this.powTerm();
+
+    while (this.isCurrentTokenType(TokenType.MUL) || this.isCurrentTokenType(TokenType.DIV)) {
+      node = new BinOpNode(node, this.eat(), this.powTerm());
+    }
+
+    return node;
+  }
+
+  protected powTerm(): ASTNode {
     let node = this.factor();
 
-    if (this.isCurrentTokenType(TokenType.MUL) || this.isCurrentTokenType(TokenType.DIV)) {
-      node = new BinOpNode(node, this.eat(), this.term());
+    if (this.isCurrentTokenType(TokenType.POWER)) {
+      node = new BinOpNode(node, this.eat(), this.powTerm());
     }
 
     return node;
@@ -44,7 +54,8 @@ export class MyParser extends Parser {
   /**
    * grammar: PLUS **factor**
    *        | MINUS **factor**
-   *        | NUMBER_CONST
+   *        | REAL_CONST
+   *        | INTEGER_CONST
    *        | VARIABLE_IDENTIFIER
    *        | LPAR **expression** RPAR
    *

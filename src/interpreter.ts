@@ -30,6 +30,9 @@ export class Interpreter extends Visitor {
     if (node.token.type === TokenType.DIV) {
       return this.visit(node.left) / this.visit(node.right);
     }
+    if (node.token.type === TokenType.POWER) {
+      return this.visit(node.left) ** this.visit(node.right);
+    }
 
     throw new Error('Unknown operator');
   }
