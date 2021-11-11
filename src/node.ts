@@ -18,3 +18,9 @@ export class UnaryOpNode extends ASTNode {
 
 export class VarNode extends ASTNode {
 }
+
+export class FunctionCallNode extends ASTNode {
+  constructor(token: Token, readonly args: ASTNode[]) {
+    super(token);
+  }
+}

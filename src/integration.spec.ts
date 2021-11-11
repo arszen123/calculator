@@ -1,5 +1,5 @@
 import { Interpreter } from './interpreter';
-import { MyParser } from './program.parser';
+import { ProgramParser } from './program.parser';
 import { SyntaxAnalyzer } from './syntax-analyzer';
 
 describe('Integration test', () => {
@@ -8,7 +8,7 @@ describe('Integration test', () => {
       $a: 1,
       $b: 2,
     };
-    const parser = new MyParser('$a * 2 + $b * 2');
+    const parser = new ProgramParser('$a * 2 + $b * 2');
     const exprNode = parser.parse();
     const analyzer = new SyntaxAnalyzer(exprNode);
     analyzer.analyze();

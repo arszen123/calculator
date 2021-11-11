@@ -1,7 +1,8 @@
+import { FunctionCallNode } from '.';
 import {
   BinOpNode, NumNode, UnaryOpNode, VarNode,
 } from './node';
-import { MyParser } from './program.parser';
+import { ProgramParser } from './program.parser';
 import { TokenType } from './tokens';
 
 describe('MyParser', () => {
@@ -13,7 +14,7 @@ describe('MyParser', () => {
       new NumNode({ type: TokenType.INTEGER_CONST, value: '20' }),
     );
 
-    const parser = new MyParser('10 * 20');
+    const parser = new ProgramParser('10 * 20');
     const res = parser.parse() as BinOpNode;
 
     expect(res).toEqual(expected);
@@ -27,7 +28,7 @@ describe('MyParser', () => {
       new NumNode({ type: TokenType.INTEGER_CONST, value: '20' }),
     );
 
-    const parser = new MyParser('10 / 20');
+    const parser = new ProgramParser('10 / 20');
     const res = parser.parse() as BinOpNode;
 
     expect(res).toEqual(expected);
@@ -41,7 +42,7 @@ describe('MyParser', () => {
       new NumNode({ type: TokenType.INTEGER_CONST, value: '20' }),
     );
 
-    const parser = new MyParser('10 + 20');
+    const parser = new ProgramParser('10 + 20');
     const res = parser.parse() as BinOpNode;
 
     expect(res).toEqual(expected);
@@ -55,7 +56,7 @@ describe('MyParser', () => {
       new NumNode({ type: TokenType.INTEGER_CONST, value: '20' }),
     );
 
-    const parser = new MyParser('10 - 20');
+    const parser = new ProgramParser('10 - 20');
     const res = parser.parse() as BinOpNode;
 
     expect(res).toEqual(expected);
@@ -68,7 +69,7 @@ describe('MyParser', () => {
       new NumNode({ type: TokenType.INTEGER_CONST, value: '10' }),
     );
 
-    const parser = new MyParser('-10');
+    const parser = new ProgramParser('-10');
     const res = parser.parse() as UnaryOpNode;
 
     expect(res).toEqual(expected);
@@ -85,7 +86,7 @@ describe('MyParser', () => {
       ),
     );
 
-    const parser = new MyParser('10+ -20');
+    const parser = new ProgramParser('10+ -20');
     const res = parser.parse() as BinOpNode;
 
     expect(res).toEqual(expected);
@@ -99,7 +100,7 @@ describe('MyParser', () => {
       new NumNode({ type: TokenType.INTEGER_CONST, value: '20' }),
     );
 
-    const parser = new MyParser('10 ^ 20');
+    const parser = new ProgramParser('10 ^ 20');
     const res = parser.parse() as BinOpNode;
 
     expect(res).toEqual(expected);
@@ -113,7 +114,7 @@ describe('MyParser', () => {
       new NumNode({ type: TokenType.INTEGER_CONST, value: '20' }),
     );
 
-    const parser = new MyParser('10.15 + 20');
+    const parser = new ProgramParser('10.15 + 20');
     const res = parser.parse() as BinOpNode;
 
     expect(res).toEqual(expected);
@@ -147,7 +148,7 @@ describe('MyParser', () => {
       ),
     );
 
-    const parser = new MyParser('10 * (20 / 2 + 30) - ((5)+55)');
+    const parser = new ProgramParser('10 * (20 / 2 + 30) - ((5)+55)');
     const res = parser.parse() as BinOpNode;
 
     expect(res).toEqual(expected);
@@ -165,9 +166,90 @@ describe('MyParser', () => {
       new VarNode({ type: TokenType.VARIABLE_IDENTIFIER, value: '$otherCustomIdentifier0' }),
     );
 
-    const parser = new MyParser('$x + $y + $otherCustomIdentifier0');
+    const parser = new ProgramParser('$x + $y + $otherCustomIdentifier0');
     const res = parser.parse() as BinOpNode;
 
     expect(res).toEqual(expected);
+  });
+
+  it('should parse simple function call', () => {
+    // foo()
+    const expected = new FunctionCallNode(
+      { type: TokenType.IDENTIFIER, value: 'foo' },
+      [],
+    );
+
+    const parser = new ProgramParser('foo()');
+
+    expect(parser.parse()).toEqual(expected);
+  });
+
+  it('should parse nested function call', () => {
+    // foo(bar())
+    const expected = new FunctionCallNode(
+      { type: TokenType.IDENTIFIER, value: 'foo' },
+      [
+        new FunctionCallNode(
+          { type: TokenType.IDENTIFIER, value: 'bar' },
+          [],
+        ),
+      ],
+    );
+
+    const parser = new ProgramParser('foo(bar())');
+
+    expect(parser.parse()).toEqual(expected);
+  });
+
+  it('should parse simple function call with parameters', () => {
+    // foo(10, 20)
+    const expected = new FunctionCallNode(
+      { type: TokenType.IDENTIFIER, value: 'foo' },
+      [
+        new NumNode({ type: TokenType.INTEGER_CONST, value: '10' }),
+        new NumNode({ type: TokenType.INTEGER_CONST, value: '20' }),
+      ],
+    );
+
+    const parser = new ProgramParser('foo(10, 20)');
+
+    expect(parser.parse()).toEqual(expected);
+  });
+
+  it('should parse multiple nested function call with parameters', () => {
+    // foo(bar(10, 20), bar(30, 40)) + baz(50, 60)
+    const expected = new BinOpNode(
+      new FunctionCallNode(
+        { type: TokenType.IDENTIFIER, value: 'foo' },
+        [
+          new FunctionCallNode(
+            { type: TokenType.IDENTIFIER, value: 'bar' },
+            [
+              new NumNode({ type: TokenType.INTEGER_CONST, value: '10' }),
+              new NumNode({ type: TokenType.INTEGER_CONST, value: '20' }),
+            ],
+          ),
+          new FunctionCallNode(
+            { type: TokenType.IDENTIFIER, value: 'bar' },
+            [
+              new NumNode({ type: TokenType.INTEGER_CONST, value: '30' }),
+              new NumNode({ type: TokenType.INTEGER_CONST, value: '40' }),
+            ],
+          ),
+        ],
+      ),
+      { type: TokenType.PLUS, value: '+' },
+      new FunctionCallNode(
+        { type: TokenType.IDENTIFIER, value: 'baz' },
+        [
+          new NumNode({ type: TokenType.INTEGER_CONST, value: '50' }),
+          new NumNode({ type: TokenType.INTEGER_CONST, value: '60' }),
+        ],
+      ),
+    );
+
+    const parser = new ProgramParser('foo(bar(10, 20), bar(30, 40)) + baz(50, 60)');
+
+    expect(parser.parse()).toEqual(expected);
   });
 });

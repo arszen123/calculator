@@ -23,7 +23,7 @@ export abstract class Parser {
     return this.lexer.getToken().type === tokenType;
   }
 
-  protected error(tokenType: TokenType) {
+  protected error(tokenType: TokenType): asserts tokenType {
     const currentToken = this.lexer.getToken();
     throw new ParserError(
       `Syntax error: token with type "${String(tokenType)}" is expected, got "${String(currentToken.type)}"!`,

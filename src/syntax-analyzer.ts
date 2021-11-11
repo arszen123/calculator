@@ -1,5 +1,5 @@
 import {
-  BinOpNode, UnaryOpNode, VarNode,
+  BinOpNode, UnaryOpNode, VarNode, FunctionCallNode,
 } from './node';
 import { ASTNode, Visitor } from './parser';
 
@@ -17,6 +17,12 @@ export class SyntaxAnalyzer extends Visitor {
 
   getVariableStack(): string[] {
     return this.variableStack;
+  }
+
+  visitFunctionCallNode(node: FunctionCallNode) {
+    for (const arg of node.args) {
+      this.visit(arg);
+    }
   }
 
   protected visitBinOpNode(node: BinOpNode) {

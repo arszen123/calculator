@@ -1,17 +1,44 @@
 import {
-  BinOpNode, NumNode, UnaryOpNode, VarNode,
+  BinOpNode, NumNode, UnaryOpNode, VarNode, FunctionCallNode,
 } from './node';
 import {
   Parser, Lexer, ASTNode, ParserError,
 } from './parser';
 import { tokenDefinitions, TokenType } from './tokens';
 
-export class MyParser extends Parser {
+export class ProgramParser extends Parser {
   constructor(input: string) {
     super(new Lexer(tokenDefinitions, input));
   }
 
   parse(): ASTNode {
+    return this.expression();
+  }
+
+  /**
+   * grammar: IDENTIFIER LPAR (**expression** (COMMA? **expression**)* COMMA?)* RPAR
+   */
+  protected functionCallStatement(): ASTNode {
+    if (this.isCurrentTokenType(TokenType.IDENTIFIER)) {
+      const id = this.eat(TokenType.IDENTIFIER);
+      this.eat(TokenType.LPAR);
+
+      const args: ASTNode[] = [];
+
+      while (!this.isCurrentTokenType(TokenType.RPAR)) {
+        args.push(this.expression());
+        if (this.isCurrentTokenType(TokenType.COMMA)) {
+          this.eat(TokenType.COMMA);
+        }
+      }
+
+      this.eat(TokenType.RPAR);
+
+      const node = new FunctionCallNode(id, args);
+
+      return node;
+    }
+
     return this.expression();
   }
 
@@ -58,6 +85,7 @@ export class MyParser extends Parser {
    *        | INTEGER_CONST
    *        | VARIABLE_IDENTIFIER
    *        | LPAR **expression** RPAR
+   *        | FUNCTION_CALL_STATEMENT
    *
    */
   protected factor(): ASTNode {
@@ -85,7 +113,11 @@ export class MyParser extends Parser {
 
       return node;
     }
+    if (this.isCurrentTokenType(TokenType.IDENTIFIER)) {
+      return this.functionCallStatement();
+    }
 
-    throw new ParserError('Unknown error');
+    this.error('unknown');
+    throw new ParserError('unknown');
   }
 }

@@ -9,7 +9,9 @@ export const TokenType = {
   POWER: 'POWER',
   REAL_CONST: 'REAL_CONST',
   INTEGER_CONST: 'INTEGER_CONST',
+  IDENTIFIER: 'IDENTIFIER',
   VARIABLE_IDENTIFIER: 'VARIABLE_IDENTIFIER',
+  COMMA: 'COMMA',
   LPAR: 'LPAR',
   RPAR: 'RPAR',
 };
@@ -26,8 +28,16 @@ export const tokenDefinitions: TokenDefinition[] = [
     matcher: /(\d+)/,
   },
   {
+    type: TokenType.IDENTIFIER,
+    matcher: /[a-zA-Z_][a-zA-Z0-9_]*/,
+  },
+  {
     type: TokenType.VARIABLE_IDENTIFIER,
     matcher: /\$[a-zA-Z_][a-zA-Z0-9_]*/,
+  },
+  {
+    type: TokenType.COMMA,
+    matcher: ',',
   },
   {
     type: TokenType.MINUS,

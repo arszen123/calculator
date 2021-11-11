@@ -1,20 +1,50 @@
 import {
-  BinOpNode, NumNode, UnaryOpNode, VarNode,
+  BinOpNode, NumNode, UnaryOpNode, VarNode, FunctionCallNode,
 } from './node';
 import { ASTNode, Visitor } from './parser';
 import { TokenType } from './tokens';
+
+export type Package = { [key: string]: CallableFunction; };
+export type Packages = { [key: string]: Package };
 
 export class Interpreter extends Visitor {
   // TODO: implement activation record
   constructor(
     private readonly root: ASTNode,
     private readonly activationRecord: { [key: string]: number } = {},
+    private readonly packages: Packages = {},
   ) {
     super();
   }
 
   interpret() {
     return this.visit(this.root);
+  }
+
+  protected visitFunctionCallNode(node: FunctionCallNode) {
+    const args = node.args.map((arg) => this.visit(arg));
+
+    return this.findFunction(node.token.value as string)(...args);
+  }
+
+  protected findFunction(name: string) {
+    let [packageName, funcName] = name.split('.');
+
+    if (typeof funcName === 'undefined') {
+      funcName = packageName;
+      packageName = 'global';
+    }
+
+    const pkg = this.packages[packageName];
+    if (!pkg) {
+      throw new Error(`Package ${packageName} not found`);
+    }
+    const func = pkg[funcName];
+    if (!func) {
+      throw new Error(`Function ${name} not found`);
+    }
+
+    return func;
   }
 
   protected visitBinOpNode(node: BinOpNode) {
